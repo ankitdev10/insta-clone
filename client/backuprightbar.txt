@@ -1,0 +1,119 @@
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { followUnfollow, logout } from "../../redux/userSlice";
+import "./rightbar.scss";
+import axios from "axios";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+const Rightbar = () => {
+  const dispatch = useDispatch();
+  const { currentUser } = useSelector((state) => state.user);
+  const [accounts, setAccounts] = useState([]);
+
+  // provide random accounts to follow
+
+  useEffect(() => {
+    const getAccounts = async () => {
+      try {
+        const res = await axios.get("/users");
+        let arr = res.data
+          .filter((account) => account._id != currentUser._id)
+          .slice(0, 4);
+        setAccounts(arr);
+      } catch (error) {}
+    };
+    getAccounts();
+  }, []);
+
+  // HANDLE FOLLOW/UNFOLLOW REQUSET
+
+  const followUser = async (e) => {
+    try {
+      await axios.put(`/users/${e.target.value}/${e.target.id}`);
+      window.location.reload();
+    } catch (error) {}
+  };
+
+  const handleSignout = () => {
+    dispatch(logout());
+    localStorage.removeItem("user");
+  };
+
+  return (
+    <div className="rightbarContainer">
+      <div className="rightBarTop">
+        <div className="rightBarTopLeft">
+          <img src={currentUser.profilePicture} alt="" className="rightBarPP" />
+          <div className="accountInfo">
+            <Link
+              style={{ textDecoration: "none", color: "inherit" }}
+              to={`/profile/${currentUser._id}`}
+            >
+              <span className="userName">{currentUser?.username}</span>
+            </Link>
+            <span className="accountName">{currentUser?.fullname}</span>
+          </div>
+        </div>
+
+        <button onClick={handleSignout} className="signOutBtn">
+          Sign Out
+        </button>
+      </div>
+
+      <div className="rightBarBottom">
+        <div className="suggestion">
+          <span className="suggestionText">Suggestions for you</span>
+          <button className="seeSuggestion">See all</button>
+        </div>
+
+        {accounts.map((account) => (
+          <div className="suggestedAccounts">
+            <div className="suggestedAccountLeft">
+              <img
+                src="https://scontent.fktm7-1.fna.fbcdn.net/v/t39.30808-6/278873855_3077173155931370_8954481548857638659_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=174925&_nc_ohc=RQD5cnZXnkUAX9_EBwk&_nc_ht=scontent.fktm7-1.fna&oh=00_AfBHPcnGc34f3mi3zr50V2p8s2lMdUblFCsPe2zWnIv6Mg&oe=63AEF73A"
+                alt=""
+                className="suggestedPP"
+              />
+              <div className="suggestedInfo">
+                <Link
+                  style={{
+                    textDecoration: "none",
+                    color: "inherit",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                  to={`/profile/${account._id}`}
+                >
+                  <span className="suggestedUserName">{account?.fullname}</span>
+                  <span className="suggestedAccountFollowedBy">
+                    {account?.username}
+                  </span>
+                </Link>
+              </div>
+            </div>
+            <button
+              value={
+                account.followers?.includes(currentUser._id)
+                  ? "unfollow"
+                  : "follow"
+              }
+              onClick={followUser}
+              id={account._id}
+              className="followBtn"
+            >
+              {account.followers?.includes(currentUser._id)
+                ? "Unfollow"
+                : "Follow"}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div className="rightBarCopyright">
+        <span>Made by ankitdev for learning purposes</span>
+      </div>
+    </div>
+  );
+};
+
+export default Rightbar;

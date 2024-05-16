@@ -1,0 +1,3 @@
+while fetching posts in frontend. post following user posts as well as other posts too(after following user posts completed)
+
+if user is new and has no following show him few posts of other

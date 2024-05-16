@@ -1,0 +1,26 @@
+.chat {
+  // width: 100vw;
+  background-color: #efefefcc;
+  position: relative;
+
+  .chatWrapper {
+    display: flex;
+    @media screen and (max-width: 480px) {
+      flex-direction: column;
+    }
+
+    .leftBar {
+      flex: 0.22;
+      z-index: 1;
+
+      @media screen and (max-width: 480px) {
+        flex: 1;
+        position: absolute;
+      }
+    }
+
+    .chatMain {
+      flex: 0.8;
+    }
+  }
+}
